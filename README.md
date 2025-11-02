@@ -1,9 +1,9 @@
-🛺 Buggy Tracking System
+# 🛺 Buggy Tracking System
 
 A real-time buggy tracking web application built using the MERN stack and Socket.IO.
 It allows drivers to share their live GPS location and users to view their movement instantly on a Leaflet map.
 
-⚙️ Tech Stack
+# ⚙️ Tech Stack
 
 Frontend: React.js, Leaflet.js, Socket.IO Client
 
@@ -11,7 +11,7 @@ Backend: Node.js, Express.js, MongoDB, Socket.IO
 
 Auth: JWT (JSON Web Token)
 
-🚀 Key Features
+# 🚀 Key Features
 
 Live GPS tracking with instant updates
 
@@ -23,7 +23,7 @@ Real-time map updates using WebSocket
 
 Clean UI with logout and change password options
 
-🧭 How It Works
+# 🧭 How It Works
 
 Driver logs in and starts sharing live location.
 
@@ -31,6 +31,6 @@ User logs in and views the buggy’s position on the map.
 
 When driver disconnects, their marker disappears automatically.
 
-🧑‍💻 Developer
+# 🧑‍💻 Developer
 
-Pranav Redij
+Pranav Redij, IIT Bombay
