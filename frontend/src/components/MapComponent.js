@@ -16,17 +16,44 @@ const MapComponent = ({ userType }) => {
       withCredentials: false,
     });
 
-    // ✅ Initialize map
-    const map = L.map("map", {
-      center: [19.1334, 72.9133],
-      zoom: 16,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      dragging: true,
-      touchZoom: true,
-      doubleClickZoom: true,
-      tap: false, // fixes mobile single-finger drag
-    });
+    // ✅ Initialize map (your same setup)
+const map = L.map("map", {
+  center: [19.1334, 72.9133],
+  zoom: 15,
+  minZoom: 15,
+  maxZoom: 18,  // 🆕 allow smooth zooming in
+  zoomControl: true,
+  scrollWheelZoom: true,
+  dragging: true,
+  touchZoom: true,
+  doubleClickZoom: true,
+  tap: false,
+});
+
+// ✅ Define IIT Bombay bounding box (slightly larger for comfort)
+const iitbBounds = L.latLngBounds(
+  [19.1200, 72.9000], // Southwest corner (made larger)
+  [19.1450, 72.9250]  // Northeast corner (made larger)
+);
+
+// ✅ Fit map to IITB bounds initially (good centered view)
+map.fitBounds(iitbBounds);
+
+// ✅ Restrict dragging smoothly inside IITB
+map.on("moveend", function () {
+  // 🆕 only recenter if map drags completely outside
+  if (!iitbBounds.contains(map.getCenter())) {
+    map.panInsideBounds(iitbBounds, { animate: true });
+  }
+});
+
+// ✅ Prevent zooming out so far that IITB leaves visible area
+map.on("zoomend", function () {
+  const currentBounds = map.getBounds();
+  if (!iitbBounds.intersects(currentBounds)) {
+    map.fitBounds(iitbBounds);
+  }
+});
 
     // ✅ Add base layer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -47,7 +74,16 @@ const MapComponent = ({ userType }) => {
       popupAnchor: [0, -35],
     });
 
+    // 🆕 NEW: added custom icon for USERS
+    const userIcon = L.icon({
+      iconUrl: "/img/user_pointer.png", // 🧍 user icon (different from driver)
+      iconSize: [40, 60],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -35],
+    });
+
     const driverMarkers = {};
+    const userMarkers = {};
 
     // ✅ Listen for driver updates
     socket.on("driversUpdate", (activeDrivers) => {
@@ -61,11 +97,34 @@ const MapComponent = ({ userType }) => {
             .bindPopup(`🚗 Driver: ${plate}`);
         }
       }
-
+      // remove disconnected drivers
       for (const plate in driverMarkers) {
         if (!activeDrivers[plate]) {
           map.removeLayer(driverMarkers[plate]);
           delete driverMarkers[plate];
+        }
+      }
+    });
+
+    // 🆕 NEW: listen for users sharing location
+    socket.on("usersUpdate", (activeUsers) => {
+      for (const id in activeUsers) {
+        const { lat, lng } = activeUsers[id];
+        if (userMarkers[id]) {
+          userMarkers[id].setLatLng([lat, lng]);
+        } else {
+          // 🆕 marker uses userIcon instead of driverIcon
+          userMarkers[id] = L.marker([lat, lng], { icon: userIcon })
+            .addTo(map)
+            .bindPopup(`🧍 User`);
+        }
+      }
+
+      // remove users who stopped sharing
+      for (const id in userMarkers) {
+        if (!activeUsers[id]) {
+          map.removeLayer(userMarkers[id]);
+          delete userMarkers[id];
         }
       }
     });
@@ -89,9 +148,46 @@ const MapComponent = ({ userType }) => {
       interval = setInterval(sendLocation, 5000);
     }
 
+     // 🆕 NEW: user sharing system -----------------------------
+    let watchId = null;
+
+    // 🆕 startUserSharing — emits continuous userLocation updates
+    const startUserSharing = () => {
+      if (!navigator.geolocation) return;
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          socket.emit("userLocation", {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        (err) => console.error(err),
+        { enableHighAccuracy: true }
+      );
+    };
+
+    // 🆕 stopUserSharing — stops watching location
+    const stopUserSharing = () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      socket.emit("stopUserLocation");
+    };
+
+     // 🆕 listen for custom event from HomePage (“Here” button click)
+    window.addEventListener("shareToggle", () => {
+      const sharing = localStorage.getItem("sharing") === "true";
+      if (sharing) startUserSharing();
+      else stopUserSharing();
+    });
+
+    // 🆕 if user had sharing enabled before refresh, auto start
+    if (userType === "user" && localStorage.getItem("sharing") === "true") {
+      startUserSharing();
+    }
     // ✅ Cleanup
     return () => {
       if (interval) clearInterval(interval);
+
+      stopUserSharing(); // 🆕 also stop user tracking when leaving
       socket.disconnect();
       map.remove();
     };

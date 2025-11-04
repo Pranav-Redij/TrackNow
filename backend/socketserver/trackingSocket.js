@@ -1,5 +1,6 @@
 // trackingSocket.js
 let activeDrivers = {}; // store driver {plate: {lat, lng}}
+let activeUsers = {};   // 🆕 new — stores active user locations
 
 function initTrackingSocket(io) {
   io.on("connection", (socket) => {
@@ -20,12 +21,24 @@ function initTrackingSocket(io) {
       // Broadcast all active drivers to every connected client
       io.emit("driversUpdate", activeDrivers);
     });
+    
+    // 🆕 USER location sharing start
+    socket.on("userLocation", (data) => {
+      activeUsers[socket.id] = { lat: data.lat, lng: data.lng }; // 🆕 store user's live position
+      io.emit("usersUpdate", activeUsers); // 🆕 broadcast all active users to everyone
+    });
 
-    // 🔴 When driver disconnects
+    // 🆕 USER stops sharing their location
+    socket.on("stopUserLocation", () => {
+      delete activeUsers[socket.id]; // 🆕 remove from active list
+      io.emit("usersUpdate", activeUsers); // 🆕 notify clients to remove their marker
+    });
+
+    //  When driver disconnects
     socket.on("disconnect", () => {
       console.log("❌ Driver disconnected:", socket.id);
 
-      // remove driver from activeDrivers
+      //  On disconnect (driver or user leaves)
       for (let plate in activeDrivers) {
         if (activeDrivers[plate].socketId === socket.id) {
           console.log(`Removing ${plate} from activeDrivers`);
@@ -33,9 +46,12 @@ function initTrackingSocket(io) {
           break;
         }
       }
+      // 🆕 remove disconnected user
+      delete activeUsers[socket.id];
 
-      // update everyone
+      // 🆕 broadcast updated lists to everyone
       io.emit("driversUpdate", activeDrivers);
+      io.emit("usersUpdate", activeUsers);
     });
   });
 }

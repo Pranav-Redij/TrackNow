@@ -6,7 +6,7 @@ const SelectRole = () => {
   return (
     <div className="select-role-page">
       <nav className="navbar">
-        <h2 className="logo">Buggy Tracking System</h2>
+        <h2 className="logo">TrackNow</h2>
       </nav>
 
       <main className="content">

@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 
+
 const cors = require("cors");//cross origin resource sharing
 //app.use(cors());
 // ✅ Allow frontend origin
