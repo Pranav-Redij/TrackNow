@@ -7,7 +7,7 @@ const cors = require("cors");//cross origin resource sharing
 // ✅ Allow frontend origin
 app.use(cors({
   origin: "http://localhost:3000",
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST","PUT"],
   credentials: true
 }));
 app.use(express.json());
