@@ -71,18 +71,24 @@ map.on("zoomend", function () {
     // ✅ Custom car icon
     const carIcon = L.icon({
       iconUrl: "/img/gps_pointer2.png",
-      iconSize: [40, 60],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -35],
+      iconSize: [30, 45],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -28],
     });
 
     // 🆕 NEW: added custom icon for USERS
     const userIcon = L.icon({
       iconUrl: "/img/user_pointer.png", // 🧍 user icon (different from driver)
-      iconSize: [40, 60],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -35],
+      iconSize: [28, 42],
+      iconAnchor: [14, 28],
+      popupAnchor: [0, -26],
     });
+    map.on("zoomend", () => {
+      const zoom = map.getZoom();
+      const scale = zoom > 16 ? 1.2 : 1;
+      carIcon.options.iconSize = [30 * scale, 45 * scale];
+    });
+
 
     const driverMarkers = {};
     const userMarkers = {};
