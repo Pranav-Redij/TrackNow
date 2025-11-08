@@ -10,10 +10,14 @@ const MapComponent = ({ userType }) => {
     const existingMap = L.DomUtil.get("map");
     if (existingMap) existingMap._leaflet_id = null;
 
+    // Auto-detect environment
+  const backendURL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5001"
+    : "https://tracknow-backend.onrender.com";
+
     // ✅ Initialize socket connection
-    const socket = io("production"
-    ? "https://tracknow-backend.onrender.com"   // your Render backend URL
-    : "http://localhost:5001", {
+    const socket = io(backendURL, {
       transports: ["websocket"],
       withCredentials: false,
     });
