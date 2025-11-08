@@ -5,11 +5,31 @@ const app = express();
 const cors = require("cors");//cross origin resource sharing
 //app.use(cors());
 // ✅ Allow frontend origin
-app.use(cors({
+
+const allowedOrigins = [
+  "http://localhost:3000",                   // for local development
+  "https://tracknow-frontend.vercel.app"     // your deployed frontend
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman or same-origin)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT"],
+    credentials: true,
+  })
+);
+/*app.use(cors({
   origin: "http://localhost:3000",
   methods: ["GET", "POST","PUT"],
   credentials: true
-}));
+}));*/
 app.use(express.json());
 
 require('dotenv').config();     
@@ -66,7 +86,7 @@ const server = http.createServer(app);
 // Create socket.io instance
 const io = new Server(server,{
     cors: {
-        origin: "http://localhost:3000", // your React app URL
+        origin: ["http://localhost:3000","https://tracknow-frontend.vercel.app"], // your React app URL
         methods: ["GET", "POST","PUT"],
         credentials: true
     },
