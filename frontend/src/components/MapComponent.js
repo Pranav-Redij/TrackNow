@@ -11,7 +11,9 @@ const MapComponent = ({ userType }) => {
     if (existingMap) existingMap._leaflet_id = null;
 
     // ✅ Initialize socket connection
-    const socket = io("http://localhost:5001", {
+    const socket = io("production"
+    ? "https://tracknow-backend.onrender.com"   // your Render backend URL
+    : "http://localhost:5001", {
       transports: ["websocket"],
       withCredentials: false,
     });
