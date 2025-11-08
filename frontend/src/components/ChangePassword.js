@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style/ChangePassword.css";
+import BASE_URL from "../config";
+
 
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -28,7 +30,7 @@ const ChangePassword = () => {
     const userId = localStorage.getItem("userId");
 
     try {
-      const res = await fetch(`http://localhost:5001/changepassword/${userId}`, {
+      const res = await fetch(`${BASE_URL}/changepassword/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

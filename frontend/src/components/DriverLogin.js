@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import BASE_URL from "../config";
 
 import "./style/DriverLogin.css";
 
@@ -23,7 +24,7 @@ const DriverLogin = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5001/driver/login", {
+      const res = await axios.post(`${BASE_URL}/driver/login`,{
         rollNoOrPlate: formData.carNumber,
         password: formData.password,
       });

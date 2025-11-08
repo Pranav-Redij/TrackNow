@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./style/UserSignup.css";
+import BASE_URL from "../config";
 
 const UserSignup = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const UserSignup = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5001/user/signup", {
+      const res = await axios.post(`${BASE_URL}/user/signup`, {
         rollNoOrPlate: formData.rollNumber,
         password: formData.password,
       });

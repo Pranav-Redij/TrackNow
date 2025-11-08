@@ -3,6 +3,7 @@ import { Link,useNavigate } from 'react-router-dom';
 import axios from "axios"; /*Axios is a popular JavaScript library 
 used in the frontend (and sometimes backend) to make HTTP requests — 
 like GET, POST, PUT, or DELETE — to your backend API.*/
+import BASE_URL from "../config";
 
 import "./style/DriverSignup.css";
 
@@ -31,7 +32,7 @@ const DriverSignup = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5001/driver/signup", {
+      const res = await axios.post(`${BASE_URL}/driver/signup`, {
         rollNoOrPlate: formData.carNumber,
         password: formData.password,
       });

@@ -3,6 +3,7 @@ import L from "leaflet";
 import { io } from "socket.io-client";
 import "leaflet/dist/leaflet.css";
 import "./style/MapComponent.css";
+import BASE_URL from "../config";
 
 const MapComponent = ({ userType }) => {
   useEffect(() => {
@@ -10,14 +11,9 @@ const MapComponent = ({ userType }) => {
     const existingMap = L.DomUtil.get("map");
     if (existingMap) existingMap._leaflet_id = null;
 
-    // Auto-detect environment
-  const backendURL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5001"
-    : "https://tracknow-backend.onrender.com";
 
     // ✅ Initialize socket connection
-    const socket = io(backendURL, {
+    const socket = io(BASE_URL, {
       transports: ["websocket"],
       withCredentials: false,
     });

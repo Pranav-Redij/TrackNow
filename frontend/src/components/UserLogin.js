@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import BASE_URL from "../config";
+
 
 import "./style/UserLogin.css";
 
@@ -22,7 +24,7 @@ const UserLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5001/user/login", {
+      const res = await axios.post(`${BASE_URL}/user/login`, {
         rollNoOrPlate: formData.rollNo,
         password: formData.password,
       });
